@@ -1,0 +1,12 @@
+{
+  "name": "liked-media-masonry",
+  "version": "0.14.4",
+  "private": true,
+  "scripts": {
+    "test": "python tests/run_tests.py",
+    "test:stress": "python tests/run_stress_tests.py",
+    "test:all": "npm test && npm run test:stress",
+    "audit:release": "python tools/release_audit.py --source .",
+    "build:release": "python tools/build_release.py --source ."
+  }
+}

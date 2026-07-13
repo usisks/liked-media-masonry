@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Liked Media Masonry</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="popup">
+    <header class="header">
+      <div>
+        <h1>Liked Media Masonry</h1>
+        <p id="page-state" class="page-state">状態を確認中…</p>
+      </div>
+      <span id="item-count" class="count">0件</span>
+    </header>
+
+    <section class="actions" aria-label="ボード操作">
+      <button id="toggle-board" class="button primary" type="button">ボードを開く</button>
+      <div class="button-grid">
+        <button id="rescan" class="button" type="button">画面内を再走査</button>
+        <button id="load-more" class="button" type="button">さらに読み込む</button>
+        <button id="scroll-top" class="button" type="button">ボード先頭へ</button>
+        <button id="report-errors" class="button" type="button">エラー報告をコピー</button>
+      </div>
+    </section>
+
+    <section class="settings" aria-labelledby="settings-title">
+      <h2 id="settings-title">表示設定</h2>
+
+      <fieldset class="preset-field">
+        <legend>カードの大きさ</legend>
+        <div class="preset-grid" aria-label="カードの大きさを選択">
+          <button class="preset-button" type="button" data-card-width="240" aria-pressed="false">小</button>
+          <button class="preset-button" type="button" data-card-width="300" aria-pressed="true">標準</button>
+          <button class="preset-button" type="button" data-card-width="380" aria-pressed="false">大</button>
+        </div>
+      </fieldset>
+
+      <details class="advanced-setting">
+        <summary>幅を細かく調整</summary>
+        <label class="field range-field" for="card-width">
+          <span>カード幅</span>
+          <output id="card-width-value" for="card-width">300px</output>
+        </label>
+        <input id="card-width" class="range" type="range" min="180" max="640" step="10" value="300">
+      </details>
+
+      <label class="field range-field separated-field" for="preview-transparency">
+        <span>左右画像の透明度</span>
+        <output id="preview-transparency-value" for="preview-transparency">0%</output>
+      </label>
+      <input id="preview-transparency" class="range" type="range" min="0" max="90" step="5" value="0" aria-describedby="preview-transparency-help">
+      <small id="preview-transparency-help" class="field-help">数字が大きいほど、左右の画像が薄くなります。</small>
+
+      <label class="switch-row" for="include-video">
+        <span>
+          <strong>動画・GIFを表示</strong>
+          <small id="include-video-help">オンにすると、現在の収集結果を消してXのいいね欄を先頭から読み直します。</small>
+        </span>
+        <input id="include-video" type="checkbox" aria-describedby="include-video-help rebuild-warning">
+      </label>
+      <p id="rebuild-warning" class="rebuild-warning">動画・GIFをオンにする変更は、現在表示中のカードを作り直します。画像の収集結果も先頭から取得し直します。</p>
+
+      <label class="field select-field" for="close-position">
+        <span>拡大表示を閉じた後</span>
+        <select id="close-position">
+          <option value="keep_scrolled_position">スクロール先をそのまま表示</option>
+          <option value="restore_open_position">開く前の位置に戻る</option>
+        </select>
+      </label>
+
+    </section>
+
+    <p class="privacy-note">エラー報告は自動送信されません。Chrome主要版・OS種別・設定・固定分類されたエラーをクリップボードへコピーします。</p>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>
