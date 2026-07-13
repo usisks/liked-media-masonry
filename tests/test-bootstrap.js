@@ -82,7 +82,7 @@
     },
     runtime: {
       id: 'lmm-test-extension',
-      getManifest: () => ({ version: '0.15.0' }),
+      getManifest: () => ({ version: '0.16.0' }),
       onMessage: { addListener: () => {} },
     },
   };

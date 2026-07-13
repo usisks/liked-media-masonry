@@ -272,7 +272,7 @@ def static_checks() -> list[str]:
         'docs/PRIVACY_DISCLOSURE_GUIDE.md',
         'docs/STRESS_TEST_REPORT.md',
         'docs/FIREFOX_DISTRIBUTION.md',
-        'docs/RELEASE_NOTES-v0.15.0.md',
+        'docs/RELEASE_NOTES-v0.16.0.md',
     ]
     for relative in release_docs:
         if not (ROOT / relative).is_file():
@@ -478,7 +478,7 @@ def browser_checks() -> list[str]:
                             },
                             runtime: {
                               id: 'lmm-test-extension',
-                              getManifest: () => ({ version: '0.15.0' }),
+                              getManifest: () => ({ version: '0.16.0' }),
                               onMessage: { addListener: () => {} },
                             },
                           };
@@ -595,7 +595,7 @@ def popup_ui_checks() -> list[str]:
                         return { ok: true, isLikesPage: true, boardOpen: false, itemCount: 3, settings: clone(storage['liked-media-masonry-settings-v2']) };
                       },
                     },
-                    runtime: { getManifest: () => ({ version: '0.15.0' }) },
+                    runtime: { getManifest: () => ({ version: '0.16.0' }) },
                   };
                 }"""
             )
