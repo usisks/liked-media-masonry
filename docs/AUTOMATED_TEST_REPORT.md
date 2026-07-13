@@ -3,30 +3,27 @@
 ## 対象
 
 - 実行日: 2026-07-13
-- バージョン: 0.14.4
-- 対象コミット: 初回公開コミット（Gitタグ `v0.14.4` の対象）
+- バージョン: 0.15.0
 - OS: Windows
 - Python: 3.11.9
-- Node.js: 22.17.0
+- Node.js: 24.18.0
 - ブラウザ: Google Chrome 150.0.7871.101（headless、ローカル疑似DOM）
 
 ## 実行コマンドと結果
 
 | コマンド | 結果 | 概要 |
 | --- | --- | --- |
+| `npm run audit:release` | 成功 | Chrome/Firefox manifest、権限、参照、外部通信、動的コード、アイコン |
 | `npm test` | 成功 | 静的検査、content script 29件、ポップアップ1件 |
-| `npm run test:stress -- --json-output tmp/stress-v0.14.4.json` | 成功 | 1,175件段階追加、5,000件規模 |
-| `npm run audit:release` | 成功（警告1件） | Manifest、権限、参照、外部通信、動的コード、アイコン |
-| 機密情報パターン検索 | 成功 | APIキー、トークン、秘密鍵、認証情報の一致なし |
-| 禁止APIパターン検索 | 成功 | 本番コードに該当なし |
-| `npm run build:release` | 成功（警告1件） | 許可リスト方式ZIPとSHA-256を生成 |
-| ZIP展開・再解析 | 成功 | 22ファイル、直下Manifest V3、破損なし、SHA一致 |
+| `npm run test:stress -- --json-output tmp/stress-v0.15.0.json` | 成功 | 1,175件段階追加、5,000件規模 |
+| `npm run build` | 成功 | Chrome/Firefox個別tree、決定的ZIP、開発用未署名XPI |
+| `npm run lint:firefox` | 成功（警告1件） | エラー0。対象外のFirefox Android最小versionに関する警告のみ |
 
 ## 通常回帰テスト
 
 - content scriptブラウザテスト: 29 / 29 成功
 - ポップアップテスト: 1 / 1 成功
-- JavaScript構文、Python構文、Manifest解析: 成功
+- JavaScript構文、Python構文、Chrome/Firefox manifest解析: 成功
 - 画像、複数画像、縦長画像、引用投稿、動画サムネイル、遅延動画: 成功
 - 設定移行、追加読込、重複防止、ライトボックス、診断情報、SPA停止・再開: 成功
 
@@ -34,7 +31,7 @@
 
 ### 段階追加シナリオ
 
-- 初期収集: 600件、17.5ms
+- 初期収集: 600件、15.6ms
 - 100件追加を5回: 各回100件を追加
 - 最終件数: 1,175件
 - 重複再走査による追加: 0件
@@ -46,41 +43,41 @@
 
 ### 5,000件シナリオ
 
-- 初期収集: 5,000件、122.9ms
+- 初期収集: 5,000件、122.6ms
 - 重複再走査による追加: 0件
 - hydrate済みカード: 28件
 - DOM要素数: 5,188
-- JavaScriptヒープ使用量: 7,863,932 bytes
+- JavaScriptヒープ使用量: 7,818,324 bytes
 - ページエラー: 0件
 
 これらは同一端末のheadless Chromeと合成DOMによる測定であり、実際のX上の速度保証ではありません。
 
-## リリース監査
+## Firefox監査
 
-- `manifest_version`: 3
-- バージョン: 0.14.4
-- 権限: `storage` のみ
-- 対象: `x.com` / `twitter.com`
-- 外部JavaScript参照: なし
-- `localStorage`、外部通信API、動的コード実行: 検出なし
-- APIキー、トークン、秘密鍵、認証情報: 検出なし
-- 警告: `icon128.png` は透明余白がないため、Chromeウェブストア用アイコンの推奨余白を要確認
+- Gecko ID: `{6c4bffd1-76c7-4c99-ba48-367642193e15}`
+- 最小Firefox version: 140.0
+- update URL: `https://usisks.github.io/liked-media-masonry/firefox/updates.json`
+- `data_collection_permissions.required`: `["none"]`
+- `web-ext lint --self-hosted`: エラー0、警告1
+- 警告内容: Firefox for Android 140ではデータ収集権限宣言が未対応。Androidは配布対象外
 
-## 配布物
+## ローカル成果物
 
-- ZIP: `dist/liked-media-masonry-v0.14.4.zip`
-- サイズ: 67,570 bytes
-- ファイル数: 22
-- SHA-256: `751b25ce3f6de022b7668d3315c84e12215faa7eeaa11d35eb3ab0c7e07ce238`
-- チェックサムファイル: `dist/liked-media-masonry-v0.14.4.zip.sha256`
+- Chrome ZIP: `dist/liked-media-masonry-chrome-v0.15.0.zip`
+- Chrome ZIP SHA-256: `c947cef55e09dce6277b4b1787545f1f8aed68b5ec039dd831044425f6135c4c`
+- 開発用Firefox XPI: `dist/liked-media-masonry-firefox-floorp-v0.15.0-unsigned.xpi`
+- 開発用Firefox XPI SHA-256: `c244e1ccb9ca453135b38471fbae88abf32370b209f6c97a68ac3da90aed18c3`
 
-ZIPを一時フォルダーへ展開し、直下の `manifest.json` を再解析しました。ソースとZIPのバージョン一致、必須ファイル、不要ファイル、破損、SHA-256一致を確認しています。
+未署名XPIは構造検査専用で、正式Releaseへ添付しません。正式なFirefox SHA-256はAMO署名後の最終XPIから計算します。
 
 ## 未検証
 
+- AMO unlisted署名（Repository Secrets未確認）
+- GitHub Pages bootstrap公開
+- GitHub Release v0.15.0の公開asset再取得
+- 公開更新JSONと署名済みXPIのSHA-256一致
+- 実際のFirefox・Floorp上での操作
+- 旧版からの実際の自動更新
 - 実際のX上での手動回帰テスト
-- Chromeへの手動インストールと目視確認
-- 長時間利用時の体感性能
-- Chromeウェブストア審査
 
 これらは自動検査の成功に含めていません。

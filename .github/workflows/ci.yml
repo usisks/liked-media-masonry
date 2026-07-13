@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          python -m pip install --disable-pip-version-check -r requirements-dev.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Audit source and manifests
+        run: npm run audit:release
+
+      - name: Run regression tests
+        run: npm run test:all
+
+      - name: Build browser packages
+        run: npm run build
+
+      - name: Lint Firefox package
+        run: npm run lint:firefox
+
+      - name: Audit built packages
+        shell: bash
+        run: |
+          VERSION="$(python -c 'import json; print(json.load(open("manifest.json", encoding="utf-8"))["version"])')"
+          python tools/release_audit.py --source . --archive "dist/liked-media-masonry-chrome-v${VERSION}.zip" --browser chrome
+          python tools/release_audit.py --source . --archive "dist/liked-media-masonry-firefox-floorp-v${VERSION}-unsigned.xpi" --browser firefox

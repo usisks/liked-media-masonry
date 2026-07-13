@@ -1,96 +1,47 @@
 # リリースチェックリスト
 
-対象バージョン：0.14.4
+対象バージョン：0.15.0
 
-## 1. 自動検査
+## ローカル自動検査
 
-- [x] Manifest V3
-- [x] 権限は`storage`だけ
-- [x] 対象サイトは`x.com`と`twitter.com`だけ
-- [x] Manifest参照ファイルが存在する
-- [x] 全本番JavaScriptの構文検査
-- [x] `localStorage`不使用
-- [x] `fetch`、XHR、WebSocket、sendBeacon不使用
-- [x] `eval`、Functionコンストラクター、動的import不使用
-- [x] 外部JavaScript不使用
-- [x] 配布ZIPを固定許可リストから生成
-- [x] 配布ZIPにテスト、ツール、ソース設計書を含めない
-- [x] ZIP破損・パストラバーサル検査
+- [x] Chrome/FirefoxともManifest V3
+- [x] 権限は `storage` のみ、対象は `x.com` と `twitter.com` のみ
+- [x] ChromeとFirefoxのmanifest、package versionが一致
+- [x] 固定Gecko ID、固定HTTPS update URL、`data_collection_permissions: ["none"]`
+- [x] `localStorage`、外部通信API、外部JavaScript、動的コードなし
 - [x] 通常回帰テスト30件通過
-- [x] 模擬ストレステスト：段階追加1,175件
-- [x] 模擬ストレステスト：5,000件規模
-- [x] 診断情報の許可リスト検査
-- [x] 削除済みセンシティブ限定機能の再混入なし
+- [x] 模擬ストレステスト：段階追加1,175件、5,000件規模
+- [x] `dist/chrome` と `dist/firefox` を個別生成
+- [x] Chrome ZIPと開発用未署名XPIの内容監査
+- [x] `web-ext lint --self-hosted` エラー0
+- [x] Firefox Android警告1件を対象外として文書化
 
-実行コマンド：
+## GitHub・Mozilla公開前提
 
-```bash
-npm test
-npm run test:stress
-npm run audit:release
-npm run build:release
-```
+- [ ] `WEB_EXT_API_KEY` Secretが存在
+- [ ] `WEB_EXT_API_SECRET` Secretが存在
+- [ ] GitHub Pages SourceがGitHub Actions
+- [ ] bootstrap更新JSONがHTTP 200
+- [ ] bootstrap JSONのGecko IDがmanifestと一致
+- [ ] AMO unlisted署名に成功
+- [ ] 署名済みXPI内manifestと署名メタデータを検証
 
-## 2. 実際のX上での確認
+## Releaseと自動更新
 
-`docs/MANUAL_X_TEST_MATRIX.md`を使用します。
+- [ ] 検証済み既定ブランチcommitへ `v0.15.0` タグを作成
+- [ ] Chrome ZIP、署名済みXPI、`SHA256SUMS.txt` をdraftへ添付
+- [ ] 正式Release公開後に両assetを再取得しSHA-256一致
+- [ ] 公開済み署名XPIだけを更新JSONへ追加
+- [ ] Pages deploy成功
+- [ ] 公開JSONのversion、URL、hash、最小Firefox versionが一致
+- [ ] 公開URLから再取得したXPIのSHA-256が一致
 
-- [ ] 画像のみのいいね欄
-- [ ] 複数画像投稿
-- [ ] 縦長画像
-- [ ] 動画
-- [ ] GIF
-- [ ] 引用投稿
-- [ ] 追加読込1回目
-- [ ] 追加読込2回目以降
-- [ ] ライトボックス中の追加読込
-- [ ] SPA移動後のObserver解除と再接続
-- [ ] ボード終了後のX本体スクロール位置
-- [ ] 500件以上でのCPU、メモリ、DOM数
-- [ ] Xの通常表示へ戻った後にスクロールと動画が壊れていない
+## 手動確認
 
-## 3. プライバシーとポリシー
+- [ ] 実際のX上でChrome版を確認
+- [ ] 実際のX上でFirefox版を確認
+- [ ] 実際のX上でFloorp版を確認
+- [ ] Esc、暗幕、前後移動、動画/GIF、追加読込、スクロール復元を確認
+- [ ] 旧版から新版への自動更新を専用プロファイルで確認
 
-- [x] PRIVACY.mdが実装内容と一致
-- [x] 外部送信なし
-- [x] Cookie・ログイン資格情報を取得しない
-- [x] 診断情報は自動送信しない
-- [x] XまたはPinterestの公式製品ではないことを明記
-- [ ] PRIVACY.mdと同内容を外部URLで公開
-- [ ] Developer DashboardのPrivacyタブを入力
-- [ ] 単一目的を明確に入力
-- [ ] サポート窓口を用意
-- [ ] 公開直前に最新のChromeウェブストアポリシーを再確認
-- [ ] Xの利用規約上のリスクを確認
-
-## 4. ストア掲載物
-
-- [ ] スクリーンショットを1～5枚作成
-- [ ] スクリーンショットを1280×800または640×400にする
-- [ ] 440×280の小型プロモーション画像を作成
-- [ ] 128×128アイコンの余白を確認
-- [ ] 画像に私的ないいね履歴や第三者の非公開情報が映っていない
-- [ ] X公式と誤認させるロゴや説明がない
-- [ ] 掲載文が現行バージョンの機能と一致
-
-## 5. パッケージと版管理
-
-- [x] manifest.jsonとpackage.jsonのバージョン一致
-- [x] 配布ZIPのルート直下にmanifest.jsonがある
-- [x] 配布ZIPを再展開して監査
-- [x] SHA-256を記録
-- [ ] 実機確認後に最終版番号を決定
-- [ ] タグ・リリースノートを作成
-- [ ] 公開に使ったZIPとSHA-256を保存
-
-## 6. 公開判断
-
-一般公開条件：
-
-1. 自動検査がすべて通過している。
-2. 手動Xテストで致命的・重大問題がない。
-3. プライバシーポリシーURLとサポート先が公開されている。
-4. ストア画像と掲載文が実装に一致している。
-5. 未確認事項と既知の制限が利用者向け説明に反映されている。
-
-現状：**通常回帰・模擬ストレス検査済み、実X確認前のベータ候補**
+現状：**ローカル自動検査済み。署名・Pages・Release・実機確認は未完了。**

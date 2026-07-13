@@ -39,6 +39,11 @@ def find_chromium() -> str | None:
     for candidate in candidates:
         if candidate.is_file():
             return str(candidate)
+    cache_root = Path.home() / '.cache/ms-playwright'
+    for pattern in ('chromium-*/chrome-linux*/chrome', 'chromium-*/chrome-win*/chrome.exe'):
+        for candidate in sorted(cache_root.glob(pattern), reverse=True):
+            if candidate.is_file():
+                return str(candidate)
     return None
 
 

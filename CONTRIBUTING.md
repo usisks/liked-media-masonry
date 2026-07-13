@@ -5,7 +5,7 @@ Liked Media Masonryへの改善提案を歓迎します。変更は、現行のM
 ## 開発環境
 
 - ChromeまたはChromium
-- Node.js 22以降
+- Node.js 24 LTS
 - Python 3.11以降
 - Python版Playwright
 

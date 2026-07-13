@@ -36,7 +36,7 @@ content scriptは次の順で読み込まれます。
 
 ## 設定読込
 
-`settings.js` は `globalThis.browser ?? globalThis.chrome` を通じて `chrome.storage.local` を利用します。保存キーは `liked-media-masonry-settings-v2` です。旧キーがある場合は対応する値だけを移行し、廃止済み設定は残しません。保存失敗時は既定値で継続します。
+`settings.js` は `globalThis.browser ?? globalThis.chrome` を通じて拡張機能の `storage.local` を利用します。保存キーは `liked-media-masonry-settings-v2` です。旧キーがある場合は対応する値だけを移行し、廃止済み設定は残しません。保存失敗時は既定値で継続します。
 
 ## XのDOMからのメディア抽出
 

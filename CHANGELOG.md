@@ -2,6 +2,26 @@
 
 このファイルは [Keep a Changelog](https://keepachangelog.com/ja/1.1.0/) に近い形式で、公開版の主な変更を記録します。バージョン番号は `manifest.json` を正本とします。
 
+## [0.15.0] - 2026-07-13
+
+### Added
+
+- Firefox DesktopとFloorp向けのManifest V3 WebExtensions互換ビルド
+- 固定Gecko ID、固定HTTPS `update_url`、データ非収集宣言を含むFirefox manifest
+- AMO unlisted署名、GitHub Release、GitHub Pages更新マニフェストを連携するリリースワークフロー
+- Chrome/Firefox個別ビルド、`web-ext lint`、署名メタデータ、更新JSON、公開XPIのSHA-256検証
+
+### Changed
+
+- Chrome ZIP名を `liked-media-masonry-chrome-vVERSION.zip` に統一
+- 共有ソースから `dist/chrome` と `dist/firefox` を生成するクロスブラウザ構成へ変更
+- 設定保存APIの説明を `globalThis.browser ?? globalThis.chrome` と `storage.local` に統一
+
+### Security
+
+- GitHub Actionsを公式actionの完全なcommit SHAへ固定
+- 未署名XPIを正式Releaseへ添付せず、署名後のasset公開・再取得・ハッシュ一致後にだけ更新JSONへ追加
+
 ## [0.14.4] - 2026-07-13
 
 ### Added

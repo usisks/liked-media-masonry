@@ -6,12 +6,13 @@
 - `tests/browser-tests.js`: content scriptのブラウザテストケース
 - `tests/fixtures/`: X風の軽量DOMフィクスチャ
 - `tests/run_stress_tests.py`: 段階追加と5,000件規模の模擬負荷テスト
-- `tools/release_audit.py`: 権限、参照、外部通信、動的コード、ZIP内容の監査
-- `tools/build_release.py`: 決定的ZIPとSHA-256の生成
+- `tools/release_audit.py`: Chrome/Firefox manifest、権限、参照、外部通信、動的コード、ZIP/XPI内容、署名メタデータの監査
+- `tools/build_release.py`: `dist/chrome`、`dist/firefox`、決定的ZIP/XPI、SHA-256の生成
+- `tools/update_manifest.py`: 公開済み署名XPIからFirefox更新エントリを生成
 
 ## 必要環境
 
-- Node.js 22以降
+- Node.js 24 LTS
 - Python 3.11以降
 - Python版Playwright
 - ChromeまたはChromium
@@ -23,7 +24,8 @@ npm test
 npm run test:stress
 npm run test:all
 npm run audit:release
-npm run build:release
+npm run build
+npm run lint:firefox
 ```
 
 ## 構文・静的検査
@@ -48,9 +50,11 @@ npm run build:release
 
 測定値は実行環境に依存し、実際のX上の性能保証ではありません。
 
-## ZIP検査
+## ZIP・XPI検査
 
-配布ビルド後、ZIPを再度開いて必須ファイル、不要ファイル、パストラバーサル、破損、`manifest.json` の解析とバージョン一致を確認します。SHA-256ファイルはZIPのバイト列から生成します。
+配布ビルド後、ZIP/XPIを再度開いて必須ファイル、不要ファイル、パストラバーサル、破損、`manifest.json` の解析とブラウザ別manifest一致を確認します。Firefox ReleaseではさらにMozilla署名メタデータを要求します。SHA-256は成果物の最終バイト列から生成します。
+
+`web-ext lint` は `dist/firefox` を対象に実行します。更新JSONはGecko ID、version重複、不変HTTPS URL、`sha256:`形式、`strict_min_version`を検査します。
 
 ## 静的プライバシー検査
 
@@ -63,5 +67,6 @@ npm run build:release
 - センシティブメディアや地域・年齢制限表示
 - 長時間利用時の体感性能
 - Chromeウェブストア審査
+- 実際のFirefox・Floorp UIでの操作と旧版からの自動更新
 
 実X上の確認項目は `MANUAL_X_TEST_MATRIX.md` を使用し、未実施の場合はRelease Notesと `KNOWN_LIMITATIONS.md` に明記します。
