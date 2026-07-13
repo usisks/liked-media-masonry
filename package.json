@@ -1,12 +1,19 @@
 {
   "name": "liked-media-masonry",
-  "version": "0.14.4",
+  "version": "0.15.0",
   "private": true,
   "scripts": {
     "test": "python tests/run_tests.py",
     "test:stress": "python tests/run_stress_tests.py",
     "test:all": "npm test && npm run test:stress",
     "audit:release": "python tools/release_audit.py --source .",
-    "build:release": "python tools/build_release.py --source ."
+    "build": "python tools/build_release.py --source . --browser all",
+    "build:release": "npm run build",
+    "build:chrome": "python tools/build_release.py --source . --browser chrome",
+    "build:firefox": "python tools/build_release.py --source . --browser firefox",
+    "lint:firefox": "web-ext lint --source-dir dist/firefox --self-hosted"
+  },
+  "devDependencies": {
+    "web-ext": "10.5.0"
   }
 }

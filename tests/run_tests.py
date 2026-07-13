@@ -75,8 +75,19 @@ def static_checks() -> list[str]:
         failures.append('manifest_version must be 3')
     if manifest.get('permissions') != ['storage']:
         failures.append(f'unexpected permissions: {manifest.get("permissions")}')
-    if manifest.get('version') != '0.14.4':
-        failures.append(f'unexpected version: {manifest.get("version")}')
+    package = json.loads((ROOT / 'package.json').read_text(encoding='utf-8'))
+    firefox_manifest = json.loads((ROOT / 'manifests/firefox.json').read_text(encoding='utf-8'))
+    if manifest.get('version') != package.get('version'):
+        failures.append('Chrome manifest and package versions differ')
+    if firefox_manifest.get('version') != manifest.get('version'):
+        failures.append('Chrome and Firefox manifest versions differ')
+    gecko = firefox_manifest.get('browser_specific_settings', {}).get('gecko', {})
+    if gecko.get('id') != '{6c4bffd1-76c7-4c99-ba48-367642193e15}':
+        failures.append('unexpected Firefox Gecko ID')
+    if gecko.get('update_url') != 'https://usisks.github.io/liked-media-masonry/firefox/updates.json':
+        failures.append('unexpected Firefox update URL')
+    if gecko.get('data_collection_permissions', {}).get('required') != ['none']:
+        failures.append('Firefox data collection declaration must be ["none"]')
 
     referenced = []
     content_script_files = []
@@ -260,11 +271,13 @@ def static_checks() -> list[str]:
         'docs/MANUAL_X_TEST_MATRIX.md',
         'docs/PRIVACY_DISCLOSURE_GUIDE.md',
         'docs/STRESS_TEST_REPORT.md',
+        'docs/FIREFOX_DISTRIBUTION.md',
+        'docs/RELEASE_NOTES-v0.15.0.md',
     ]
     for relative in release_docs:
         if not (ROOT / relative).is_file():
             failures.append(f'release document missing: {relative}')
-    for relative in ['tools/release_audit.py', 'tools/build_release.py', 'tests/run_stress_tests.py']:
+    for relative in ['tools/release_audit.py', 'tools/build_release.py', 'tools/update_manifest.py', 'tests/run_stress_tests.py']:
         path = ROOT / relative
         if not path.is_file():
             failures.append(f'release tool missing: {relative}')
@@ -280,7 +293,11 @@ def static_checks() -> list[str]:
             'test:stress': 'python tests/run_stress_tests.py',
             'test:all': 'npm test && npm run test:stress',
             'audit:release': 'python tools/release_audit.py --source .',
-            'build:release': 'python tools/build_release.py --source .',
+            'build': 'python tools/build_release.py --source . --browser all',
+            'build:release': 'npm run build',
+            'build:chrome': 'python tools/build_release.py --source . --browser chrome',
+            'build:firefox': 'python tools/build_release.py --source . --browser firefox',
+            'lint:firefox': 'web-ext lint --source-dir dist/firefox --self-hosted',
         }
         if package.get('version') != manifest.get('version'):
             failures.append('package version does not match manifest version')
@@ -343,6 +360,11 @@ def find_chromium() -> str | None:
     for candidate in candidates:
         if candidate.is_file():
             return str(candidate)
+    cache_root = Path.home() / '.cache/ms-playwright'
+    for pattern in ('chromium-*/chrome-linux*/chrome', 'chromium-*/chrome-win*/chrome.exe'):
+        for candidate in sorted(cache_root.glob(pattern), reverse=True):
+            if candidate.is_file():
+                return str(candidate)
     return None
 
 
@@ -456,7 +478,7 @@ def browser_checks() -> list[str]:
                             },
                             runtime: {
                               id: 'lmm-test-extension',
-                              getManifest: () => ({ version: '0.14.4' }),
+                              getManifest: () => ({ version: '0.15.0' }),
                               onMessage: { addListener: () => {} },
                             },
                           };
@@ -573,7 +595,7 @@ def popup_ui_checks() -> list[str]:
                         return { ok: true, isLikesPage: true, boardOpen: false, itemCount: 3, settings: clone(storage['liked-media-masonry-settings-v2']) };
                       },
                     },
-                    runtime: { getManifest: () => ({ version: '0.14.4' }) },
+                    runtime: { getManifest: () => ({ version: '0.15.0' }) },
                   };
                 }"""
             )
